@@ -1,0 +1,66 @@
+service: aircall-sre-hiring-test
+
+configValidationMode: 'error'
+unresolvedVariablesNotificationMode: 'error'
+
+plugins:
+  - serverless-graph
+
+provider:
+  name: aws
+  region: eu-west-1
+  memorySize: 128
+  lambdaHashingVersion: '20201221'
+
+  apiGateway:
+    binaryMediaTypes:
+      - 'multipart/form-data'
+
+  tracing:
+    apiGateway: true
+    lambda: true
+
+  # Use container based functions
+  ecr:
+    scanOnPush: true
+    images:
+      crop-image:
+        path: ./
+
+  # IAM configuration to let the lambda access to destination S3 bucket.
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:PutObjectAcl
+          Resource: !Join ['', [!GetAtt CropImageDestinationBucket.Arn, "/*"]]
+
+functions:
+  cropImage:
+    image:
+      name: crop-image
+    description: |
+      Awesome Image cropper ;-P
+    environment:
+      S3_BUCKET: !Ref CropImageDestinationBucket
+    events:
+      - http: 'POST /image'
+    dependsOn:
+      - CropImageDestinationBucket
+
+resources:
+  Resources:
+    # This resource is the bucket where the images are saved.
+    CropImageDestinationBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: "PublicRead"
+
+  Outputs:
+    CropImageDestinationBucketUrl:
+      Description: |
+        Crop Image function destination bucket Url
+      Value:
+        'Fn::GetAtt': [CropImageDestinationBucket, WebsiteURL]

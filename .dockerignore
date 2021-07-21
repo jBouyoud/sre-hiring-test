@@ -1,0 +1,11 @@
+.idea/
+.serverless/
+node_modules/
+test/
+
+.gitignore
+.nvmrc
+Dockerfile
+README.md
+serverless.yaml
+infrastructure.png

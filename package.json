@@ -7,15 +7,26 @@
   "author": "<arnaud.beun@aircall.io>",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": "14.x"
+  },
   "dependencies": {
     "aws-sdk": "^2.662.0",
     "busboy": "^0.3.1",
     "sharp": "^0.25.2"
   },
   "devDependencies": {
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "serverless": "2.52.0",
+    "serverless-graph": "0.3.2"
   },
   "scripts": {
-    "deploy": "serverless deploy"
+    "infra:deploy": "serverless deploy -v",
+    "infra:info": "serverless info -v",
+    "infra:graph": "serverless graph --outFile=.serverless/graph.out && cat .serverless/graph.out | dot -Tpng -o infrastructure.png",
+    "infra:metrics": "serverless metrics",
+    "infra:metrics:cropImage": "npm run infra:metrics -- -f cropImage",
+    "infra:logs": "serverless logs",
+    "infra:logs:cropImage": "npm run infra:logs -- -f cropImage"
   }
 }
